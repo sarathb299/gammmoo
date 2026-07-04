@@ -37,6 +37,7 @@ import MagicBento from './components/MagicBento';
 import ProfileCard from './components/ProfileCard';
 import AeoShowcase from './components/AeoShowcase';
 import AuditTool from './components/AuditTool';
+import LeadQualifier from './components/LeadQualifier';
 import ElectricBorder from './components/ElectricBorder';
 import BorderGlow from './components/BorderGlow';
 import CustomCursor from './components/CustomCursor';
@@ -267,6 +268,7 @@ export default function App() {
             <a href="#aeo-showcase-section" className="hover:text-luxury-green-glowing transition-colors">SHOWCASE</a>
             <a href="#magic-bento-section" className="hover:text-luxury-green-glowing transition-colors">IMPACT</a>
             <a href="#circular-gallery-container" className="hover:text-luxury-green-glowing transition-colors">INDUSTRIES</a>
+            <a href="#lead-qualifier-section" className="hover:text-luxury-green-glowing transition-colors">QUALIFIER</a>
             <a href="#ai-auditor-section" className="hover:text-luxury-green-glowing transition-colors">AI AUDIT</a>
           </nav>
 
@@ -389,6 +391,17 @@ export default function App() {
                     className="hover:text-luxury-green-glowing transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group"
                   >
                     <span>INDUSTRIES</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-luxury-green-glowing transition-colors" />
+                  </motion.a>
+                  <motion.a
+                    initial={{ opacity: 0, x: 15 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.23 }}
+                    href="#lead-qualifier-section"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="hover:text-luxury-green-glowing transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group"
+                  >
+                    <span>QUALIFIER</span>
                     <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-luxury-green-glowing transition-colors" />
                   </motion.a>
                   <motion.a
@@ -630,6 +643,18 @@ export default function App() {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
         <CircularGallery />
+      </motion.section>
+
+      {/* Bespoke AI Lead Qualification & Filter Flow Section */}
+      <motion.section 
+        className="relative z-10 bg-luxury-black py-16 border-t border-green-950/15"
+        id="lead-qualifier-section"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <LeadQualifier />
       </motion.section>
 
       {/* AI Strategy Auditing Tool Section */}
