@@ -1,0 +1,150 @@
+:root {
+  --theme-bg: #050a06;
+  --theme-bg-darker: #0d2212;
+  --theme-accent-dark: #154522;
+  --theme-accent-mid: #1f6432;
+  --theme-accent-light: #2da151;
+  --theme-accent-glowing: #4ade80;
+  --theme-text-main: #fcfdfd;
+  --theme-card-bg: rgba(13, 34, 18, 0.65);
+}
+
+[data-theme="light"] {
+  --theme-bg: #f6fbf7; /* premium warm light off-white with subtle mint-sage undertone */
+  --theme-bg-darker: #e3ede5; /* beautiful soft mint-cream secondary background */
+  --theme-accent-dark: #2da151; /* glowing green */
+  --theme-accent-mid: #1f6432; /* rich forest leaf emerald */
+  --theme-accent-light: #154522; /* deep luxury mint */
+  --theme-accent-glowing: #12331b; /* deep leaf emerald for rich typography contrast */
+  --theme-text-main: #0c180e; /* ultra deep forest slate */
+  --theme-card-bg: #ffffff; /* pure white cards */
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-mono: "Space Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Custom Green + White luxury color scheme mapped to CSS variables */
+  --color-luxury-black: var(--theme-bg);
+  --color-luxury-green-dark: var(--theme-bg-darker);
+  --color-luxury-green: var(--theme-accent-dark);
+  --color-luxury-green-mid: var(--theme-accent-mid);
+  --color-luxury-green-light: var(--theme-accent-light);
+  --color-luxury-green-glowing: var(--theme-accent-glowing);
+  --color-luxury-white: var(--theme-text-main);
+  --color-luxury-cream: var(--theme-card-bg);
+
+  --animate-pulse-slow: pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-glow: glow 3s ease-in-out infinite alternate;
+  --animate-border-spin: border-spin 8s linear infinite;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 10px rgba(74, 222, 128, 0.2), 0 0 20px rgba(74, 222, 128, 0.1);
+  }
+  to {
+    text-shadow: 0 0 20px rgba(74, 222, 128, 0.4), 0 0 30px rgba(74, 222, 128, 0.2);
+  }
+}
+
+@keyframes border-spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Custom styles for luxury demographics and premium interactions */
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(135deg, #fcfdfd 30%, #4ade80 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .text-gradient-green {
+    background: linear-gradient(135deg, #2da151 0%, #4ade80 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-gradient-luxury {
+    background: linear-gradient(135deg, #0d2212 20%, #1f6432 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .glass-dark {
+    background: rgba(13, 34, 18, 0.65);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(74, 222, 128, 0.15);
+  }
+
+  .glass-light {
+    background: rgba(252, 253, 253, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(13, 34, 18, 0.06);
+    box-shadow: 0 20px 40px -15px rgba(13, 34, 18, 0.05);
+  }
+
+  .luxury-glow {
+    box-shadow: 0 0 40px -5px rgba(74, 222, 128, 0.15);
+  }
+
+  .luxury-border-glow {
+    position: relative;
+  }
+
+  .luxury-border-glow::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.3), transparent);
+    z-index: -1;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .luxury-border-glow:hover::after {
+    opacity: 1;
+  }
+}
+
+/* Base resets & Custom scrollbar */
+html {
+  scroll-behavior: smooth;
+  background-color: var(--theme-bg);
+  color: var(--theme-text-main);
+  transition: background-color 0.5s cubic-bezier(0.16, 1, 0.3, 1), color 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--theme-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--theme-accent-mid);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-accent-light);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
