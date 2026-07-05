@@ -336,7 +336,11 @@ export default function App() {
           
           {/* Logo & Location block */}
           <div 
-            onClick={() => setActiveView('home')}
+            onClick={() => {
+              setActiveView('home');
+              window.history.pushState(null, '', '/');
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }}
             className="flex items-center gap-4 cursor-pointer group"
           >
             <div className="relative">
@@ -353,43 +357,71 @@ export default function App() {
           {/* Navigation Links (Desktop) */}
           <nav className="hidden md:flex items-center gap-6 text-xs font-mono tracking-wider">
             <button 
-              onClick={() => setActiveView('home')} 
+              onClick={() => {
+                setActiveView('home');
+                window.history.pushState(null, '', '/');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }} 
               className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'home' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
             >
               HOME
             </button>
             <button 
-              onClick={() => setActiveView('about')} 
+              onClick={() => {
+                setActiveView('about');
+                window.history.pushState(null, '', '/about');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }} 
               className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'about' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
             >
               ABOUT
             </button>
             <button 
-              onClick={() => setActiveView('services')} 
+              onClick={() => {
+                setActiveView('services');
+                window.history.pushState(null, '', '/service');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }} 
               className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'services' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
             >
               SERVICES
             </button>
             <button 
-              onClick={() => setActiveView('blog')} 
+              onClick={() => {
+                setActiveView('blog');
+                window.history.pushState(null, '', '/blog');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }} 
               className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'blog' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
             >
               BLOG
             </button>
             <button 
-              onClick={() => setActiveView('faq')} 
+              onClick={() => {
+                setActiveView('faq');
+                window.history.pushState(null, '', '/faq');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }} 
               className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'faq' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
             >
               FAQ
             </button>
             <button 
-              onClick={() => setActiveView('brand-hub')} 
+              onClick={() => {
+                setActiveView('brand-hub');
+                window.history.pushState(null, '', '/brand-hub');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }} 
               className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'brand-hub' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
             >
               BRAND HUB
             </button>
             <button 
-              onClick={() => setActiveView('contact')} 
+              onClick={() => {
+                setActiveView('contact');
+                window.history.pushState(null, '', '/contact');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }} 
               className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'contact' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
             >
               CONTACT
@@ -483,7 +515,12 @@ export default function App() {
                     initial={{ opacity: 0, x: 15 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.05 }}
-                    onClick={() => { setActiveView('home'); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      setActiveView('home');
+                      setIsMenuOpen(false);
+                      window.history.pushState(null, '', '/');
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                    }}
                     className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'home' ? 'text-luxury-green-glowing font-bold' : ''}`}
                   >
                     <span>HOME</span>
@@ -493,7 +530,12 @@ export default function App() {
                     initial={{ opacity: 0, x: 15 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
-                    onClick={() => { setActiveView('about'); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      setActiveView('about');
+                      setIsMenuOpen(false);
+                      window.history.pushState(null, '', '/about');
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                    }}
                     className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'about' ? 'text-luxury-green-glowing font-bold' : ''}`}
                   >
                     <span>ABOUT</span>
@@ -503,7 +545,12 @@ export default function App() {
                     initial={{ opacity: 0, x: 15 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.15 }}
-                    onClick={() => { setActiveView('services'); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      setActiveView('services');
+                      setIsMenuOpen(false);
+                      window.history.pushState(null, '', '/service');
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                    }}
                     className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'services' ? 'text-luxury-green-glowing font-bold' : ''}`}
                   >
                     <span>SERVICES</span>
@@ -513,7 +560,12 @@ export default function App() {
                     initial={{ opacity: 0, x: 15 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
-                    onClick={() => { setActiveView('blog'); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      setActiveView('blog');
+                      setIsMenuOpen(false);
+                      window.history.pushState(null, '', '/blog');
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                    }}
                     className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'blog' ? 'text-luxury-green-glowing font-bold' : ''}`}
                   >
                     <span>BLOG</span>
@@ -523,7 +575,12 @@ export default function App() {
                     initial={{ opacity: 0, x: 15 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.23 }}
-                    onClick={() => { setActiveView('faq'); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      setActiveView('faq');
+                      setIsMenuOpen(false);
+                      window.history.pushState(null, '', '/faq');
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                    }}
                     className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'faq' ? 'text-luxury-green-glowing font-bold' : ''}`}
                   >
                     <span>FAQ</span>
@@ -533,7 +590,12 @@ export default function App() {
                     initial={{ opacity: 0, x: 15 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.24 }}
-                    onClick={() => { setActiveView('brand-hub'); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      setActiveView('brand-hub');
+                      setIsMenuOpen(false);
+                      window.history.pushState(null, '', '/brand-hub');
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                    }}
                     className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'brand-hub' ? 'text-luxury-green-glowing font-bold' : ''}`}
                   >
                     <span>BRAND HUB</span>
@@ -543,7 +605,12 @@ export default function App() {
                     initial={{ opacity: 0, x: 15 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.25 }}
-                    onClick={() => { setActiveView('contact'); setIsMenuOpen(false); }}
+                    onClick={() => {
+                      setActiveView('contact');
+                      setIsMenuOpen(false);
+                      window.history.pushState(null, '', '/contact');
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                    }}
                     className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'contact' ? 'text-luxury-green-glowing font-bold' : ''}`}
                   >
                     <span>CONTACT</span>
@@ -963,12 +1030,12 @@ export default function App() {
             <div className="space-y-4 text-xs font-mono">
               <h5 className="text-luxury-green-glowing text-[10px] uppercase tracking-wider font-bold">Quick Navigation</h5>
               <ul className="space-y-2 text-zinc-400">
-                <li><button onClick={() => setActiveView('about')} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">About Sarath Babu</button></li>
-                <li><button onClick={() => setActiveView('services')} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Our Premium Services</button></li>
-                <li><button onClick={() => setActiveView('blog')} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Advanced AI SEO Blog</button></li>
-                <li><button onClick={() => setActiveView('faq')} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Technical FAQ Hub</button></li>
-                <li><button onClick={() => setActiveView('brand-hub')} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Brand Entity Hub</button></li>
-                <li><button onClick={() => setActiveView('contact')} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Contact Direct Concierge</button></li>
+                <li><button onClick={() => { setActiveView('about'); window.history.pushState(null, '', '/about'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">About Sarath Babu</button></li>
+                <li><button onClick={() => { setActiveView('services'); window.history.pushState(null, '', '/service'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Our Premium Services</button></li>
+                <li><button onClick={() => { setActiveView('blog'); window.history.pushState(null, '', '/blog'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Advanced AI SEO Blog</button></li>
+                <li><button onClick={() => { setActiveView('faq'); window.history.pushState(null, '', '/faq'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Technical FAQ Hub</button></li>
+                <li><button onClick={() => { setActiveView('brand-hub'); window.history.pushState(null, '', '/brand-hub'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Brand Entity Hub</button></li>
+                <li><button onClick={() => { setActiveView('contact'); window.history.pushState(null, '', '/contact'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Contact Direct Concierge</button></li>
               </ul>
             </div>
 
