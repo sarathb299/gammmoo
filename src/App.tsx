@@ -41,6 +41,14 @@ import LeadQualifier from './components/LeadQualifier';
 import ElectricBorder from './components/ElectricBorder';
 import BorderGlow from './components/BorderGlow';
 import CustomCursor from './components/CustomCursor';
+import AboutView from './components/AboutView';
+import ServiceView from './components/ServiceView';
+import BlogView from './components/BlogView';
+import FaqView from './components/FaqView';
+import ContactView from './components/ContactView';
+import SEOHead from './components/SEOHead';
+import BrandHub from './components/BrandHub';
+
 
 const SERVICES = [
   {
@@ -99,11 +107,88 @@ const SERVICES = [
   },
 ];
 
+const homeSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://thinksarath.com/#website",
+      "name": "ThinkSarath",
+      "url": "https://thinksarath.com",
+      "description": "Premium AI Search, GEO, AEO & traditional SEO scaling pipelines by Sarath Babu K, based in Chennai and Erode, India."
+    },
+    {
+      "@type": "ProfessionalService",
+      "name": "ThinkSarath | AI Search, AEO & SEO Consultant Chennai & Erode",
+      "image": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&h=600&q=80",
+      "telephone": "+91-7094629042",
+      "url": "https://thinksarath.com",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Erode",
+        "addressRegion": "Tamil Nadu",
+        "addressCountry": "IN"
+      }
+    }
+  ]
+};
+
 export default function App() {
   const [activeService, setActiveService] = useState<string | null>(null);
   const [showFloatingCTA, setShowFloatingCTA] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeView, setActiveView] = useState<'home' | 'about' | 'services' | 'blog' | 'faq' | 'contact' | 'brand-hub'>(() => {
+    const path = window.location.pathname;
+    if (path === '/about') return 'about';
+    if (path === '/services' || path === '/service') return 'services';
+    if (path === '/blog') return 'blog';
+    if (path === '/faq') return 'faq';
+    if (path === '/contact') return 'contact';
+    if (path === '/brand-hub') return 'brand-hub';
+    return 'home';
+  });
+
+  // Sync state changes back to the URL path
+  useEffect(() => {
+    const viewToPathMap: Record<string, string> = {
+      home: '/',
+      about: '/about',
+      services: '/service',
+      blog: '/blog',
+      faq: '/faq',
+      contact: '/contact',
+      'brand-hub': '/brand-hub',
+    };
+    
+    const currentPath = window.location.pathname;
+    const targetPath = viewToPathMap[activeView] || '/';
+    
+    if (currentPath !== targetPath) {
+      window.history.pushState({ view: activeView }, '', targetPath);
+    }
+  }, [activeView]);
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      if (path === '/about') setActiveView('about');
+      else if (path === '/services' || path === '/service') setActiveView('services');
+      else if (path === '/blog') setActiveView('blog');
+      else if (path === '/faq') setActiveView('faq');
+      else if (path === '/contact') setActiveView('contact');
+      else if (path === '/brand-hub') setActiveView('brand-hub');
+      else setActiveView('home');
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [activeView]);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('thinksarath-theme') as 'dark' | 'light' | null;
@@ -250,9 +335,12 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
           
           {/* Logo & Location block */}
-          <div className="flex items-center gap-4">
+          <div 
+            onClick={() => setActiveView('home')}
+            className="flex items-center gap-4 cursor-pointer group"
+          >
             <div className="relative">
-              <span className="absolute -inset-1 rounded-md bg-luxury-green-glowing blur opacity-25" />
+              <span className="absolute -inset-1 rounded-md bg-luxury-green-glowing blur opacity-25 group-hover:opacity-40 transition-opacity" />
               <div className="relative bg-luxury-black border border-luxury-green text-luxury-white font-serif font-bold text-lg px-3 py-1 rounded-md tracking-wider">
                 THINKSARATH<span className="text-luxury-green-glowing">.AI</span>
               </div>
@@ -263,13 +351,49 @@ export default function App() {
           </div>
 
           {/* Navigation Links (Desktop) */}
-          <nav className="hidden md:flex items-center gap-8 text-xs font-mono tracking-wider text-zinc-400">
-            <a href="#services-hub" className="hover:text-luxury-green-glowing transition-colors">SERVICES</a>
-            <a href="#aeo-showcase-section" className="hover:text-luxury-green-glowing transition-colors">SHOWCASE</a>
-            <a href="#magic-bento-section" className="hover:text-luxury-green-glowing transition-colors">IMPACT</a>
-            <a href="#circular-gallery-container" className="hover:text-luxury-green-glowing transition-colors">INDUSTRIES</a>
-            <a href="#lead-qualifier-section" className="hover:text-luxury-green-glowing transition-colors">QUALIFIER</a>
-            <a href="#ai-auditor-section" className="hover:text-luxury-green-glowing transition-colors">AI AUDIT</a>
+          <nav className="hidden md:flex items-center gap-6 text-xs font-mono tracking-wider">
+            <button 
+              onClick={() => setActiveView('home')} 
+              className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'home' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
+            >
+              HOME
+            </button>
+            <button 
+              onClick={() => setActiveView('about')} 
+              className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'about' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
+            >
+              ABOUT
+            </button>
+            <button 
+              onClick={() => setActiveView('services')} 
+              className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'services' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
+            >
+              SERVICES
+            </button>
+            <button 
+              onClick={() => setActiveView('blog')} 
+              className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'blog' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
+            >
+              BLOG
+            </button>
+            <button 
+              onClick={() => setActiveView('faq')} 
+              className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'faq' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
+            >
+              FAQ
+            </button>
+            <button 
+              onClick={() => setActiveView('brand-hub')} 
+              className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'brand-hub' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
+            >
+              BRAND HUB
+            </button>
+            <button 
+              onClick={() => setActiveView('contact')} 
+              className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'contact' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
+            >
+              CONTACT
+            </button>
           </nav>
 
           {/* Right side operations (Theme Toggle, Desktop CTA, Mobile Menu Button) */}
@@ -291,7 +415,13 @@ export default function App() {
             {/* Action trigger CTA (Desktop only) */}
             <div className="hidden md:block">
               <a 
-                href="#ai-auditor-section" 
+                href={activeView === 'home' ? '#ai-auditor-section' : '#'}
+                onClick={(e) => {
+                  if (activeView !== 'home') {
+                    e.preventDefault();
+                    setActiveView('contact');
+                  }
+                }}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-linear-to-r from-luxury-green to-luxury-green-mid hover:from-luxury-green-mid hover:to-luxury-green-light text-xs font-mono text-luxury-white font-semibold transition-all hover:shadow-[0_0_15px_rgba(74,222,128,0.3)]"
               >
                 RUN FREE AUDIT <ArrowUpRight className="w-3.5 h-3.5" />
@@ -349,72 +479,76 @@ export default function App() {
 
                 {/* Vertical Navigation Links */}
                 <nav className="flex flex-col gap-5 text-xs font-mono tracking-widest text-zinc-300">
-                  <motion.a
+                  <motion.button
                     initial={{ opacity: 0, x: 15 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.05 }}
-                    href="#services-hub"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="hover:text-luxury-green-glowing transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group"
+                    onClick={() => { setActiveView('home'); setIsMenuOpen(false); }}
+                    className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'home' ? 'text-luxury-green-glowing font-bold' : ''}`}
                   >
-                    <span>SERVICES</span>
+                    <span>HOME</span>
                     <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-luxury-green-glowing transition-colors" />
-                  </motion.a>
-                  <motion.a
+                  </motion.button>
+                  <motion.button
                     initial={{ opacity: 0, x: 15 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
-                    href="#aeo-showcase-section"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="hover:text-luxury-green-glowing transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group"
+                    onClick={() => { setActiveView('about'); setIsMenuOpen(false); }}
+                    className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'about' ? 'text-luxury-green-glowing font-bold' : ''}`}
                   >
-                    <span>SHOWCASE</span>
+                    <span>ABOUT</span>
                     <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-luxury-green-glowing transition-colors" />
-                  </motion.a>
-                  <motion.a
+                  </motion.button>
+                  <motion.button
                     initial={{ opacity: 0, x: 15 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.15 }}
-                    href="#magic-bento-section"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="hover:text-luxury-green-glowing transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group"
+                    onClick={() => { setActiveView('services'); setIsMenuOpen(false); }}
+                    className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'services' ? 'text-luxury-green-glowing font-bold' : ''}`}
                   >
-                    <span>IMPACT</span>
+                    <span>SERVICES</span>
                     <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-luxury-green-glowing transition-colors" />
-                  </motion.a>
-                  <motion.a
+                  </motion.button>
+                  <motion.button
                     initial={{ opacity: 0, x: 15 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
-                    href="#circular-gallery-container"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="hover:text-luxury-green-glowing transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group"
+                    onClick={() => { setActiveView('blog'); setIsMenuOpen(false); }}
+                    className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'blog' ? 'text-luxury-green-glowing font-bold' : ''}`}
                   >
-                    <span>INDUSTRIES</span>
+                    <span>BLOG</span>
                     <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-luxury-green-glowing transition-colors" />
-                  </motion.a>
-                  <motion.a
+                  </motion.button>
+                  <motion.button
                     initial={{ opacity: 0, x: 15 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.23 }}
-                    href="#lead-qualifier-section"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="hover:text-luxury-green-glowing transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group"
+                    onClick={() => { setActiveView('faq'); setIsMenuOpen(false); }}
+                    className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'faq' ? 'text-luxury-green-glowing font-bold' : ''}`}
                   >
-                    <span>QUALIFIER</span>
+                    <span>FAQ</span>
                     <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-luxury-green-glowing transition-colors" />
-                  </motion.a>
-                  <motion.a
+                  </motion.button>
+                  <motion.button
+                    initial={{ opacity: 0, x: 15 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.24 }}
+                    onClick={() => { setActiveView('brand-hub'); setIsMenuOpen(false); }}
+                    className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'brand-hub' ? 'text-luxury-green-glowing font-bold' : ''}`}
+                  >
+                    <span>BRAND HUB</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-luxury-green-glowing transition-colors" />
+                  </motion.button>
+                  <motion.button
                     initial={{ opacity: 0, x: 15 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.25 }}
-                    href="#ai-auditor-section"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="hover:text-luxury-green-glowing transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group"
+                    onClick={() => { setActiveView('contact'); setIsMenuOpen(false); }}
+                    className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'contact' ? 'text-luxury-green-glowing font-bold' : ''}`}
                   >
-                    <span>AI AUDIT</span>
+                    <span>CONTACT</span>
                     <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-luxury-green-glowing transition-colors" />
-                  </motion.a>
+                  </motion.button>
                 </nav>
               </div>
 
@@ -425,8 +559,14 @@ export default function App() {
                 </div>
 
                 <a 
-                  href="#ai-auditor-section" 
-                  onClick={() => setIsMenuOpen(false)}
+                  href={activeView === 'home' ? '#ai-auditor-section' : '#'}
+                  onClick={(e) => {
+                    setIsMenuOpen(false);
+                    if (activeView !== 'home') {
+                      e.preventDefault();
+                      setActiveView('contact');
+                    }
+                  }}
                   className="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg bg-linear-to-r from-luxury-green to-luxury-green-mid hover:from-luxury-green-mid hover:to-luxury-green-light text-xs font-mono text-luxury-white font-semibold transition-all hover:shadow-[0_0_15px_rgba(74,222,128,0.3)]"
                 >
                   RUN FREE AUDIT <ArrowUpRight className="w-3.5 h-3.5" />
@@ -442,10 +582,24 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Hero Section */}
-      <motion.section 
-        className="relative pt-12 md:pt-24 pb-16 md:pb-24 max-w-7xl mx-auto px-4 z-10" 
-        id="hero-section"
+      <AnimatePresence mode="wait">
+        {activeView === 'home' && (
+          <motion.div
+            key="home"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <SEOHead 
+              title="ThinkSarath | AI Search, AEO & SEO Consultant Chennai & Erode" 
+              description="Premium SEO, GEO & AEO scaling programs by Sarath Babu K. Capture top-tier Google search real estate and Generative AI chat citations." 
+              schema={homeSchema} 
+            />
+            {/* Hero Section */}
+            <motion.section 
+              className="relative pt-12 md:pt-24 pb-16 md:pb-24 max-w-7xl mx-auto px-4 z-10" 
+              id="hero-section"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
@@ -693,6 +847,95 @@ export default function App() {
           <ProfileCard />
         </div>
       </motion.section>
+          </motion.div>
+        )}
+
+        {activeView === 'about' && (
+          <motion.div
+            key="about"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4 }}
+            className="relative z-10 pt-10"
+          >
+            <AboutView />
+          </motion.div>
+        )}
+
+        {activeView === 'services' && (
+          <motion.div
+            key="services"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4 }}
+            className="relative z-10 pt-10"
+          >
+            <ServiceView />
+          </motion.div>
+        )}
+
+        {activeView === 'blog' && (
+          <motion.div
+            key="blog"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4 }}
+            className="relative z-10 pt-10"
+          >
+            <BlogView onViewChange={(view, tab) => {
+              setActiveView(view);
+              if (tab) {
+                setTimeout(() => {
+                  window.history.pushState(null, '', `/brand-hub?tab=${tab}`);
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }, 50);
+              }
+            }} />
+          </motion.div>
+        )}
+
+        {activeView === 'faq' && (
+          <motion.div
+            key="faq"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4 }}
+            className="relative z-10 pt-10"
+          >
+            <FaqView />
+          </motion.div>
+        )}
+
+        {activeView === 'brand-hub' && (
+          <motion.div
+            key="brand-hub"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4 }}
+            className="relative z-10 pt-10"
+          >
+            <BrandHub />
+          </motion.div>
+        )}
+
+        {activeView === 'contact' && (
+          <motion.div
+            key="contact"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4 }}
+            className="relative z-10 pt-10"
+          >
+            <ContactView />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Premium Footer with Local Maps Accent */}
       <footer className="relative border-t border-green-950/30 bg-luxury-black pt-16 pb-12 z-10">
@@ -718,12 +961,14 @@ export default function App() {
 
             {/* Quick links */}
             <div className="space-y-4 text-xs font-mono">
-              <h5 className="text-luxury-green-glowing text-[10px] uppercase tracking-wider font-bold">Services</h5>
+              <h5 className="text-luxury-green-glowing text-[10px] uppercase tracking-wider font-bold">Quick Navigation</h5>
               <ul className="space-y-2 text-zinc-400">
-                <li><a href="#services-hub" className="hover:text-luxury-white transition-colors">Search Engine Optimisation</a></li>
-                <li><a href="#services-hub" className="hover:text-luxury-white transition-colors">Answer Engine Optimisation</a></li>
-                <li><a href="#services-hub" className="hover:text-luxury-white transition-colors">Google Maps Pack SEO</a></li>
-                <li><a href="#services-hub" className="hover:text-luxury-white transition-colors">PPC Ads & Facebook Campaigns</a></li>
+                <li><button onClick={() => setActiveView('about')} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">About Sarath Babu</button></li>
+                <li><button onClick={() => setActiveView('services')} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Our Premium Services</button></li>
+                <li><button onClick={() => setActiveView('blog')} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Advanced AI SEO Blog</button></li>
+                <li><button onClick={() => setActiveView('faq')} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Technical FAQ Hub</button></li>
+                <li><button onClick={() => setActiveView('brand-hub')} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Brand Entity Hub</button></li>
+                <li><button onClick={() => setActiveView('contact')} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Contact Direct Concierge</button></li>
               </ul>
             </div>
 
