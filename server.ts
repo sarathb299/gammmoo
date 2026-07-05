@@ -3,11 +3,21 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from "dotenv";
+import { 
+  initializeDatabase, 
+  saveLead, 
+  saveAudit, 
+  getDbStatus, 
+  getDbRecords 
+} from "./src/services/DatabaseService";
 
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
+
+// Run database init on server boot
+initializeDatabase();
 
 app.use(express.json());
 
@@ -185,6 +195,26 @@ app.post("/api/lead", async (req, res) => {
     }
 
     const leadData = JSON.parse(text);
+
+    // Save lead details to MySQL / In-memory store
+    await saveLead({
+      industry,
+      scalingGoal,
+      bottleneck,
+      authorityLevel,
+      audience,
+      competitorState,
+      contentCapability,
+      geoScope,
+      budget,
+      businessName,
+      contactName,
+      email,
+      phone,
+      websiteUrl,
+      customGoal
+    });
+
     return res.json(leadData);
 
   } catch (error: any) {
@@ -298,6 +328,22 @@ app.post("/api/audit", async (req, res) => {
     }
 
     const auditData = JSON.parse(text);
+
+    // Save audit details to MySQL / In-memory store
+    await saveAudit({
+      businessName,
+      websiteUrl,
+      niche,
+      selectedServices,
+      goals,
+      seoScore: auditData.scoreCard?.seoScore,
+      aeoScore: auditData.scoreCard?.aeoScore,
+      geoScore: auditData.scoreCard?.geoScore,
+      adsScore: auditData.scoreCard?.adsScore,
+      overview: auditData.overview,
+      estimatedGrowth: auditData.estimatedGrowth
+    });
+
     return res.json(auditData);
 
   } catch (error: any) {
@@ -305,6 +351,37 @@ app.post("/api/audit", async (req, res) => {
     return res.status(500).json({ 
       error: "Failed to generate AI Audit. Please ensure GEMINI_API_KEY is configured in Secrets.",
       details: error.message 
+    });
+  }
+});
+
+// API route to get database connection status & metrics
+app.get("/api/db-status", async (req, res) => {
+  try {
+    const status = await getDbStatus();
+    res.json(status);
+  } catch (error: any) {
+    res.status(500).json({
+      connected: false,
+      isConfigured: false,
+      errorMessage: error.message,
+      leadsCount: 0,
+      auditsCount: 0
+    });
+  }
+});
+
+// API route to retrieve saved database records (leads and audits)
+app.get("/api/db-records", async (req, res) => {
+  try {
+    const records = await getDbRecords();
+    res.json(records);
+  } catch (error: any) {
+    console.error("Failed to retrieve database records:", error);
+    res.status(500).json({
+      leads: [],
+      audits: [],
+      error: error.message
     });
   }
 });

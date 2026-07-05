@@ -43,11 +43,13 @@ import BorderGlow from './components/BorderGlow';
 import CustomCursor from './components/CustomCursor';
 import AboutView from './components/AboutView';
 import ServiceView from './components/ServiceView';
-import BlogView from './components/BlogView';
+import BlogView, { BlogPost, POSTS } from './components/BlogView';
 import FaqView from './components/FaqView';
 import ContactView from './components/ContactView';
 import SEOHead from './components/SEOHead';
 import BrandHub from './components/BrandHub';
+import DatabaseView from './components/DatabaseView';
+import { getCentralSchema, getPageMetadata } from './utils/seo';
 
 
 const SERVICES = [
@@ -138,7 +140,7 @@ export default function App() {
   const [showFloatingCTA, setShowFloatingCTA] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeView, setActiveView] = useState<'home' | 'about' | 'services' | 'blog' | 'faq' | 'contact' | 'brand-hub'>(() => {
+  const [activeView, setActiveView] = useState<'home' | 'about' | 'services' | 'blog' | 'faq' | 'contact' | 'brand-hub' | 'database'>(() => {
     const path = window.location.pathname;
     if (path === '/about') return 'about';
     if (path === '/services' || path === '/service') return 'services';
@@ -146,7 +148,17 @@ export default function App() {
     if (path === '/faq') return 'faq';
     if (path === '/contact') return 'contact';
     if (path === '/brand-hub') return 'brand-hub';
+    if (path === '/database') return 'database';
     return 'home';
+  });
+
+  const [activeBlogPost, setActiveBlogPost] = useState<BlogPost | null>(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('post');
+    if (postId && window.location.pathname === '/blog') {
+      return POSTS.find(p => p.id === postId) || null;
+    }
+    return null;
   });
 
   // Sync state changes back to the URL path
@@ -159,27 +171,50 @@ export default function App() {
       faq: '/faq',
       contact: '/contact',
       'brand-hub': '/brand-hub',
+      database: '/database',
     };
     
     const currentPath = window.location.pathname;
-    const targetPath = viewToPathMap[activeView] || '/';
+    const currentSearch = window.location.search;
+    let targetPath = viewToPathMap[activeView] || '/';
     
-    if (currentPath !== targetPath) {
+    if (activeView === 'blog' && activeBlogPost) {
+      targetPath = `/blog?post=${activeBlogPost.id}`;
+    }
+    
+    const currentFull = currentPath + currentSearch;
+    if (currentFull !== targetPath) {
       window.history.pushState({ view: activeView }, '', targetPath);
     }
-  }, [activeView]);
+  }, [activeView, activeBlogPost]);
 
-  // Handle browser back/forward buttons
+  // Handle browser back/forward buttons and query param routing sync
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
+      const urlParams = new URLSearchParams(window.location.search);
+      const postId = urlParams.get('post');
+
       if (path === '/about') setActiveView('about');
       else if (path === '/services' || path === '/service') setActiveView('services');
-      else if (path === '/blog') setActiveView('blog');
+      else if (path === '/blog') {
+        setActiveView('blog');
+        if (postId) {
+          setActiveBlogPost(POSTS.find(p => p.id === postId) || null);
+        } else {
+          setActiveBlogPost(null);
+        }
+      }
       else if (path === '/faq') setActiveView('faq');
       else if (path === '/contact') setActiveView('contact');
       else if (path === '/brand-hub') setActiveView('brand-hub');
+      else if (path === '/database') setActiveView('database');
       else setActiveView('home');
+
+      // Clear blog post if we left the blog page
+      if (path !== '/blog') {
+        setActiveBlogPost(null);
+      }
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -221,104 +256,45 @@ export default function App() {
   return (
     <div className="relative min-h-screen bg-luxury-black text-luxury-white overflow-x-hidden font-sans selection:bg-luxury-green-glowing selection:text-luxury-black lg:cursor-none">
       
-      <Helmet>
-        <title>ThinkSarath | AI Digital Marketing & SEO Specialist Chennai</title>
-        <meta name="description" content="Chennai's leading AI digital marketing consultant. Specialized in SEO, Answer Engine Optimisation (AEO), Generative Engine Optimisation (GEO), Google Ads, and Meta Ads." />
-        
-        {/* Keywords */}
-        <meta name="keywords" content="AI Digital Marketing Chennai, SEO Freelancer Chennai, AEO Specialist Chennai, GEO Optimization, Google Ads Consultant, Meta Ads Expert, ThinkSarath, Generative Engine Optimization" />
-        <meta name="author" content="ThinkSarath" />
-        <meta name="robots" content="index, follow" />
+      {(() => {
+        const seoData = getPageMetadata(activeView, activeBlogPost);
+        const centralSchema = getCentralSchema();
+        return (
+          <Helmet>
+            <title>{seoData.title}</title>
+            <meta name="description" content={seoData.description} />
+            <meta name="keywords" content={seoData.keywords} />
+            <meta name="author" content="ThinkSarath" />
+            <meta name="robots" content="index, follow" />
 
-        {/* OpenGraph Tags */}
-        <meta property="og:title" content="ThinkSarath | AI Digital Marketing & Search Engine Optimization Freelancer" />
-        <meta property="og:description" content="Dominate AI search engine results. Specializing in AEO, GEO, technical SEO, and ROI-driven paid acquisition campaigns in Chennai." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://thinksarath.com" />
-        <meta property="og:image" content="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80" />
-        <meta property="og:site_name" content="ThinkSarath AI Marketing" />
+            {/* OpenGraph Tags */}
+            <meta property="og:title" content={seoData.title} />
+            <meta property="og:description" content={seoData.description} />
+            <meta property="og:type" content={activeView === 'blog' && activeBlogPost ? 'article' : 'website'} />
+            <meta property="og:url" content={activeView === 'blog' && activeBlogPost ? `https://thinksarath.com/blog?post=${activeBlogPost.id}` : `https://thinksarath.com${window.location.pathname}`} />
+            <meta property="og:image" content={activeView === 'blog' && activeBlogPost ? activeBlogPost.image : "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80"} />
+            <meta property="og:site_name" content="ThinkSarath AI Marketing" />
 
-        {/* Twitter Cards */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="ThinkSarath | AI Digital Marketing Chennai" />
-        <meta name="twitter:description" content="Appear in ChatGPT, Perplexity, and Google AI Overviews. Technical SEO, GEO, and high-performance ads." />
-        <meta name="twitter:image" content="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80" />
+            {/* Twitter Cards */}
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:title" content={seoData.title} />
+            <meta name="twitter:description" content={seoData.description} />
+            <meta name="twitter:image" content={activeView === 'blog' && activeBlogPost ? activeBlogPost.image : "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80"} />
 
-        {/* Structured Data (JSON-LD) */}
-        <script type="application/ld+json">
-          {`
-            {
-              "@context": "https://schema.org",
-              "@type": "ProfessionalService",
-              "name": "ThinkSarath AI Digital Marketing",
-              "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
-              "@id": "https://thinksarath.com/#professional-service",
-              "url": "https://thinksarath.com",
-              "telephone": "+919876543210",
-              "address": {
-                "@type": "PostalAddress",
-                "streetAddress": "OMR Road, Sholinganallur",
-                "addressLocality": "Chennai",
-                "addressRegion": "TN",
-                "postalCode": "600119",
-                "addressCountry": "IN"
-              },
-              "geo": {
-                "@type": "GeoCoordinates",
-                "latitude": 12.9010,
-                "longitude": 80.2279
-              },
-              "sameAs": [
-                "https://github.com/sarath",
-                "https://linkedin.com/in/sarath"
-              ],
-              "priceRange": "$$",
-              "openingHoursSpecification": {
-                "@type": "OpeningHoursSpecification",
-                "dayOfWeek": [
-                  "Monday",
-                  "Tuesday",
-                  "Wednesday",
-                  "Thursday",
-                  "Friday",
-                  "Saturday"
-                ],
-                "opens": "09:00",
-                "closes": "18:00"
-              }
-            }
-          `}
-        </script>
+            {/* Centralized JSON-LD Schema (Person, Organization, ProfessionalService) */}
+            <script type="application/ld+json">
+              {JSON.stringify(centralSchema)}
+            </script>
 
-        {/* Portfolio Owner structured data */}
-        <script type="application/ld+json">
-          {`
-            {
-              "@context": "https://schema.org",
-              "@type": "Person",
-              "name": "Sarath",
-              "jobTitle": "AI Digital Marketing Freelancer",
-              "knowsAbout": [
-                "Search Engine Optimization",
-                "Answer Engine Optimization",
-                "Generative Engine Optimization",
-                "Google Ads",
-                "Meta Ads",
-                "Digital Marketing Strategy"
-              ],
-              "worksFor": {
-                "@type": "Organization",
-                "name": "ThinkSarath"
-              },
-              "address": {
-                "@type": "PostalAddress",
-                "addressLocality": "Chennai",
-                "addressCountry": "IN"
-              }
-            }
-          `}
-        </script>
-      </Helmet>
+            {/* Dynamic Page Schema (e.g. BlogPosting or Blog List) */}
+            {seoData.schema && (
+              <script type="application/ld+json">
+                {JSON.stringify(seoData.schema)}
+              </script>
+            )}
+          </Helmet>
+        );
+      })()}
 
       {/* Custom premium mouse cursor effect */}
       <CustomCursor />
@@ -415,6 +391,16 @@ export default function App() {
               className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'brand-hub' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
             >
               BRAND HUB
+            </button>
+            <button 
+              onClick={() => {
+                setActiveView('database');
+                window.history.pushState(null, '', '/database');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }} 
+              className={`transition-colors cursor-pointer font-semibold uppercase ${activeView === 'database' ? 'text-luxury-green-glowing' : 'text-zinc-400 hover:text-luxury-green-glowing'}`}
+            >
+              DATABASE
             </button>
             <button 
               onClick={() => {
@@ -599,6 +585,21 @@ export default function App() {
                     className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'brand-hub' ? 'text-luxury-green-glowing font-bold' : ''}`}
                   >
                     <span>BRAND HUB</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-luxury-green-glowing transition-colors" />
+                  </motion.button>
+                  <motion.button
+                    initial={{ opacity: 0, x: 15 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.245 }}
+                    onClick={() => {
+                      setActiveView('database');
+                      setIsMenuOpen(false);
+                      window.history.pushState(null, '', '/database');
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                    }}
+                    className={`hover:text-luxury-green-glowing text-left transition-colors border-b border-green-950/10 pb-2.5 flex justify-between items-center group w-full cursor-pointer ${activeView === 'database' ? 'text-luxury-green-glowing font-bold' : ''}`}
+                  >
+                    <span>DATABASE</span>
                     <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-luxury-green-glowing transition-colors" />
                   </motion.button>
                   <motion.button
@@ -990,6 +991,19 @@ export default function App() {
           </motion.div>
         )}
 
+        {activeView === 'database' && (
+          <motion.div
+            key="database"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4 }}
+            className="relative z-10 pt-10"
+          >
+            <DatabaseView />
+          </motion.div>
+        )}
+
         {activeView === 'contact' && (
           <motion.div
             key="contact"
@@ -1035,6 +1049,7 @@ export default function App() {
                 <li><button onClick={() => { setActiveView('blog'); window.history.pushState(null, '', '/blog'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Advanced AI SEO Blog</button></li>
                 <li><button onClick={() => { setActiveView('faq'); window.history.pushState(null, '', '/faq'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Technical FAQ Hub</button></li>
                 <li><button onClick={() => { setActiveView('brand-hub'); window.history.pushState(null, '', '/brand-hub'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Brand Entity Hub</button></li>
+                <li><button onClick={() => { setActiveView('database'); window.history.pushState(null, '', '/database'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">MySQL Lead Database</button></li>
                 <li><button onClick={() => { setActiveView('contact'); window.history.pushState(null, '', '/contact'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="hover:text-luxury-white transition-colors cursor-pointer text-left block">Contact Direct Concierge</button></li>
               </ul>
             </div>

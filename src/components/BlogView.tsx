@@ -13,14 +13,17 @@ import {
   Award,
   Zap,
   CheckCircle2,
-  Share2
+  Share2,
+  ListTree,
+  Database
 } from 'lucide-react';
 import BorderGlow from './BorderGlow';
 import SEOHead from './SEOHead';
 import Breadcrumbs from './Breadcrumbs';
+import { linkEntities, getPostHeadings } from '../utils/entityLinker';
 
 
-interface BlogPost {
+export interface BlogPost {
   id: string;
   category: 'brand' | 'ai' | 'aeo' | 'pseo' | 'ads';
   categoryLabel: string;
@@ -34,7 +37,7 @@ interface BlogPost {
   takeaways: string[];
 }
 
-const POSTS: BlogPost[] = [
+export const POSTS: BlogPost[] = [
   {
     id: "who-is-thinksarath-brand-story",
     category: "brand",
@@ -518,6 +521,7 @@ export default function BlogView({ onViewChange }: BlogViewProps) {
                     onClick={() => {
                       setActivePost(post);
                       window.history.pushState(null, '', `/blog?post=${post.id}`);
+                      window.dispatchEvent(new PopStateEvent('popstate'));
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     className="group cursor-pointer"
@@ -569,19 +573,21 @@ export default function BlogView({ onViewChange }: BlogViewProps) {
             )}
           </motion.div>
         ) : (
-          <motion.div
+          <motion.article
             key="detail"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.4 }}
             className="max-w-4xl mx-auto space-y-8"
+            id="blog-detail-article"
           >
             {/* Back to list trigger */}
             <button
               onClick={() => {
                 setActivePost(null);
                 window.history.pushState(null, '', '/blog');
+                window.dispatchEvent(new PopStateEvent('popstate'));
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               className="inline-flex items-center gap-2 px-3 py-1.5 border border-green-950/40 bg-green-950/10 text-zinc-400 hover:text-luxury-green-glowing rounded-lg text-xs font-mono cursor-pointer transition-all hover:border-luxury-green-glowing/30"
@@ -610,9 +616,71 @@ export default function BlogView({ onViewChange }: BlogViewProps) {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               {/* Main Essay */}
               <div className="lg:col-span-8 space-y-6 font-sans font-light text-zinc-300 text-sm leading-relaxed">
-                {activePost.fullContent.map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
-                ))}
+                {/* Cornerstone Section: ThinkSarath AI SEO Framework™ */}
+                <section className="mb-8 p-5 border border-green-950/40 bg-green-950/10 rounded-xl space-y-3 relative overflow-hidden" id="thinksarath-ai-seo-framework">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-luxury-green-glowing/5 rounded-full filter blur-2xl pointer-events-none"></div>
+                  <h2 className="text-sm font-mono text-luxury-white uppercase tracking-wider font-bold flex items-center gap-2 border-b border-green-950/20 pb-2">
+                    <Zap className="w-4 h-4 text-luxury-green-glowing" /> ThinkSarath AI SEO Framework™
+                  </h2>
+                  <p className="text-xs text-zinc-400 leading-relaxed font-sans">
+                    This article represents an authoritative node inside our proprietary <button onClick={() => { if (onViewChange) onViewChange('brand-hub', 'method-ai-search'); else { window.history.pushState(null, '', '/brand-hub?tab=method-ai-search'); window.dispatchEvent(new PopStateEvent('popstate')); } }} className="text-luxury-green-glowing hover:underline font-semibold bg-transparent border-none p-0 cursor-pointer">ThinkSarath Method™</button> search architecture. Our organic growth engine is engineered to map client brand entities securely into LLM Knowledge Graphs, ensuring unshakeable visibility and citations in ChatGPT, Gemini, and Perplexity Search.
+                  </p>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] font-mono text-zinc-500 pt-1">
+                    <span className="text-luxury-green-glowing/70">✓ Semantic JSON-LD Injections</span>
+                    <span className="text-luxury-green-glowing/70">✓ RAG Contextual Seeding</span>
+                    <span className="text-luxury-green-glowing/70">✓ pSEO Node Architectures</span>
+                  </div>
+                </section>
+
+                {/* Dynamic Table of Contents */}
+                <nav className="mb-8 p-5 border border-green-950/20 bg-green-950/5 rounded-xl space-y-3" aria-label="Table of contents">
+                  <h3 className="text-[11px] font-mono text-luxury-green-glowing uppercase font-bold tracking-widest flex items-center gap-2">
+                    <ListTree className="w-4 h-4" /> TABLE OF CONTENTS
+                  </h3>
+                  <ul className="space-y-2 font-mono text-xs">
+                    {getPostHeadings(activePost.id).map((heading) => (
+                      <li key={heading.id} className="flex items-center gap-2 group">
+                        <span className="text-luxury-green-glowing/40 group-hover:text-luxury-green-glowing transition-colors">→</span>
+                        <a
+                          href={`#${heading.id}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const el = document.getElementById(heading.id);
+                            if (el) {
+                              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              window.history.pushState(null, '', `#${heading.id}`);
+                            }
+                          }}
+                          className="text-zinc-400 hover:text-luxury-white transition-colors underline decoration-zinc-800 hover:decoration-luxury-green-glowing"
+                        >
+                          {heading.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+
+                {/* Structured Essay Content with Headings */}
+                {activePost.fullContent.map((paragraph, index) => {
+                  const headings = getPostHeadings(activePost.id);
+                  const headingForThisParagraph = headings[index];
+                  return (
+                    <div key={index} className="space-y-4">
+                      {headingForThisParagraph && (
+                        <h2 
+                          id={headingForThisParagraph.id} 
+                          className="text-base sm:text-lg font-serif font-medium text-luxury-white mt-8 pt-4 border-t border-green-950/15 scroll-mt-24 flex items-center gap-2 group"
+                        >
+                          <span className="text-luxury-green-glowing/60 text-xs font-mono font-normal">#</span>
+                          {headingForThisParagraph.text}
+                        </h2>
+                      )}
+                      <p className="font-sans font-light text-zinc-300 text-sm leading-relaxed">
+                        {linkEntities(paragraph, onViewChange)}
+                      </p>
+                    </div>
+                  );
+                })}
 
                 {/* Inline advice block */}
                 <div className="p-5 border-l-2 border-luxury-green-glowing bg-green-950/5 rounded-r-xl space-y-2 mt-6">
@@ -640,7 +708,7 @@ export default function BlogView({ onViewChange }: BlogViewProps) {
                       </div>
                       
                       <p className="text-xs text-zinc-400 leading-relaxed font-sans font-light">
-                        **Sarath Babu K** is an elite organic growth consultant, custom WordPress developer, and search engine architect behind the **ThinkSarath Method™** framework. Based in Chennai & Erode, India, Sarath specializes in **AI SEO**, **GEO**, **AEO**, and **Programmatic SEO (pSEO)** architectures that build unshakeable brand entities inside LLM search graphs.
+                        {linkEntities("**Sarath Babu K** is an elite organic growth consultant, custom WordPress developer, and search engine architect behind the **ThinkSarath Method™** framework. Based in Chennai & Erode, India, Sarath specializes in **AI SEO**, **GEO**, **AEO**, and **Programmatic SEO (pSEO)** architectures that build unshakeable brand entities inside LLM search graphs.", onViewChange)}
                       </p>
 
                       {/* Topic clusters */}
@@ -709,8 +777,44 @@ export default function BlogView({ onViewChange }: BlogViewProps) {
                 </div>
               </div>
 
-              {/* Sidebar with key takeaways */}
+              {/* Sidebar with key takeaways and semantic clusters */}
               <div className="lg:col-span-4 space-y-6">
+                {/* Dynamic Semantic Topic Cluster Sidebar */}
+                <div className="p-5 border border-green-950/30 bg-green-950/5 rounded-xl space-y-4">
+                  <h3 className="text-xs font-mono text-luxury-green-glowing uppercase font-bold tracking-widest flex items-center gap-2">
+                    <Database className="w-4 h-4" /> SEMANTIC TOPIC CLUSTER
+                  </h3>
+                  <div className="space-y-1 pb-1">
+                    <p className="text-[10px] font-sans text-zinc-500 leading-normal">
+                      These articles are conceptually linked inside our LLM Knowledge Graph for <span className="text-luxury-green-glowing font-bold uppercase">{activePost.categoryLabel}</span>.
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    {POSTS.filter(p => p.id !== activePost.id && (p.category === activePost.category || p.categoryLabel === activePost.categoryLabel || activePost.category === 'brand' || p.category === 'brand')).slice(0, 3).map((relatedPost) => (
+                      <div 
+                        key={relatedPost.id}
+                        onClick={() => {
+                          setActivePost(relatedPost);
+                          window.history.pushState(null, '', `/blog?post=${relatedPost.id}`);
+                          window.dispatchEvent(new PopStateEvent('popstate'));
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className="group/related cursor-pointer p-2.5 rounded-lg border border-green-950/15 hover:border-luxury-green-glowing/20 bg-green-950/5 hover:bg-green-950/10 transition-all space-y-1.5"
+                      >
+                        <span className="text-[9px] font-mono text-luxury-green-glowing bg-green-950/40 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                          {relatedPost.categoryLabel}
+                        </span>
+                        <h4 className="text-xs font-serif text-zinc-400 group-hover/related:text-luxury-white transition-colors line-clamp-2 leading-snug">
+                          {relatedPost.title}
+                        </h4>
+                        <span className="text-[10px] font-mono text-zinc-600 block group-hover/related:text-zinc-500 transition-colors">
+                          Read: {relatedPost.readTime}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="p-5 border border-green-950/30 bg-green-950/5 rounded-xl space-y-4">
                   <h3 className="text-xs font-mono text-luxury-green-glowing uppercase font-bold tracking-widest flex items-center gap-2">
                     <Zap className="w-4 h-4" /> KEY TAKEAWAYS
@@ -742,7 +846,7 @@ export default function BlogView({ onViewChange }: BlogViewProps) {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </motion.article>
         )}
       </AnimatePresence>
     </div>
